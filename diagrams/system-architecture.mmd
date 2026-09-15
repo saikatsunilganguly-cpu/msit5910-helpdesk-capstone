@@ -1,0 +1,32 @@
+flowchart TD
+    U(["End User"]) --> TSI["<b>Ticket Submission Interface</b><br/><i>Plain-language prompts,<br/>minimal required fields</i>"]
+    TSI --> CAT["<b>Categorisation Module</b><br/><i>Maps request to<br/>standard category</i>"]
+    CAT --> DS[("Category and Priority<br/>Data Store")]
+    CAT --> TRI["<b>Triage and Assessment Module</b><br/><i>Evaluates impact, urgency,<br/>security flags</i>"]
+    TRI --> AE["<b>Assignment and Escalation Module</b><br/><i>Routes ticket to<br/>queue or support role</i>"]
+    AE --> RES["<b>Ticket Resolution and<br/>Status Update</b>"]
+    RES --> REP["<b>Reporting and Analytics</b><br/><i>Workload and workflow-<br/>performance reports</i>"]
+
+    TSI ~~~ SEC
+    CAT ~~~ SEC
+    TRI ~~~ SEC
+    AE ~~~ SEC
+    RES ~~~ SEC
+    REP ~~~ SEC
+
+    subgraph SEC["<b>Security and Governance Layer — applies to all modules</b>"]
+        direction LR
+        S1["RBAC"] --- S2["Audit<br/>Logging"] --- S3["Encryption"] --- S4["Data<br/>Minimisation"] --- S5["Retention<br/>Controls"]
+    end
+
+    classDef module fill:#eef4fb,stroke:#2c5f8a,stroke-width:1.5px,color:#1a1a1a;
+    classDef store fill:#fdf3e3,stroke:#b8860b,stroke-width:1.5px,color:#1a1a1a;
+    classDef security fill:#f4eef7,stroke:#6a3d8f,stroke-width:1.2px,color:#1a1a1a;
+    classDef actor fill:#e9f7ef,stroke:#2e7d4f,stroke-width:1.5px,color:#1a1a1a;
+    classDef invisible stroke-width:0px,fill:none;
+
+    class U actor;
+    class TSI,CAT,TRI,AE,RES,REP module;
+    class DS store;
+    class SEC,S1,S2,S3,S4,S5 security;
+    linkStyle 7,8,9,10,11,12 stroke:none;
