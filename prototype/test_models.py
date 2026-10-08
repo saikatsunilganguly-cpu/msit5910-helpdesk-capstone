@@ -8,18 +8,16 @@ White-box unit tests: they check schema creation, seed-data content,
 idempotency of init_db(), and the audit-logging side effect of
 log_action(), all with direct knowledge of the underlying SQL.
 """
-import os
 import pytest
-from models import init_db, get_connection, log_action, DB_PATH
+import models
+from models import init_db, get_connection, log_action
 
 
 @pytest.fixture(autouse=True)
-def fresh_database():
-    if DB_PATH.exists():
-        os.remove(DB_PATH)
+def fresh_database(tmp_path, monkeypatch):
+    """Each test gets its own empty temporary database (helpdesk.db is never touched)."""
+    monkeypatch.setattr(models, "DB_PATH", tmp_path / "unit.db")
     yield
-    if DB_PATH.exists():
-        os.remove(DB_PATH)
 
 
 def test_init_db_creates_all_four_tables():

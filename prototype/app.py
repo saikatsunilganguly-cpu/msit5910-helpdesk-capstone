@@ -64,6 +64,12 @@ def submit_ticket():
     result = None
     if request.method == "POST":
         description = request.form["description"].strip()
+        if not description:
+            # Unit 7 fix (found by tests ST-09 and ST-10): empty tickets used to be stored.
+            return render_template(
+                "submit.html", username=session["username"], role=session["role"],
+                result=None, error="Please describe the issue before submitting.",
+            ), 400
         category, priority, sensitive = categorize_ticket(description)
 
         conn = get_connection()
@@ -88,7 +94,9 @@ def queue():
         return redirect(url_for("login"))
 
     conn = get_connection()
-    tickets = conn.execute("SELECT * FROM tickets ORDER BY created_at DESC").fetchall()
+    # Unit 7 fix (found by test ST-11): created_at has one-second resolution, so tickets
+    # submitted in the same second tied; id DESC makes "newest first" reliable.
+    tickets = conn.execute("SELECT * FROM tickets ORDER BY created_at DESC, id DESC").fetchall()
     conn.close()
 
     log_action(session["username"], "view_queue")

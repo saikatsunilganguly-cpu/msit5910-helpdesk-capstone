@@ -2,6 +2,7 @@
 {% block title %}Submit Ticket{% endblock %}
 {% block content %}
 <h1>Submit a Ticket</h1>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
 <form method="post">
     <label>Describe the issue</label>
     <textarea name="description" rows="3" placeholder="e.g. I'm locked out of my account after resetting my password" required></textarea>

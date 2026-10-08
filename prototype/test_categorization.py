@@ -9,21 +9,18 @@ of categorize_ticket() directly (keyword matching, tie-breaking,
 fallback behaviour), with full knowledge of how the function is
 implemented, rather than treating it as an opaque black box.
 """
-import os
 import pytest
-from models import init_db, DB_PATH
+import models
+from models import init_db
 from categorization import categorize_ticket
 
 
 @pytest.fixture(autouse=True)
-def fresh_database():
-    """Give every test a clean, freshly-seeded database."""
-    if DB_PATH.exists():
-        os.remove(DB_PATH)
+def fresh_database(tmp_path, monkeypatch):
+    """Give every test a clean, freshly-seeded temporary database (helpdesk.db is never touched)."""
+    monkeypatch.setattr(models, "DB_PATH", tmp_path / "unit.db")
     init_db()
     yield
-    if DB_PATH.exists():
-        os.remove(DB_PATH)
 
 
 # ---- One test per seeded category (FR1: five standard categories) ----

@@ -1,0 +1,17 @@
+{
+  "workers": 10,
+  "tickets_each": 30,
+  "requests": 300,
+  "successful": 300,
+  "failed": 0,
+  "seconds": 7.299572800053284,
+  "mean_ms": 189.64597600124156,
+  "p95_ms": 518.599399831146,
+  "max_ms": 4702.953800093383,
+  "tickets_in_db": 300,
+  "audit_submissions": 300,
+  "integrity_ok": true,
+  "result": "PASS",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.2"
+}
