@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Ticket Queue{% endblock %}
+{% block content %}
+<h1>Ticket Queue</h1>
+<p class="role-tag">Viewing as: {{ role }} {% if role != 'identity_management' %}&mdash; security-sensitive ticket detail is masked for this role.{% endif %}</p>
+
+<table>
+    <tr><th>ID</th><th>Description</th><th>Category</th><th>Priority</th><th>Status</th><th>Submitted By</th></tr>
+    {% for t in tickets %}
+    <tr>
+        <td>{{ t.id }}</td>
+        <td class="{{ 'restricted' if t.security_sensitive and role != 'identity_management' else '' }}">{{ t.description }}</td>
+        <td>{{ t.category }}</td>
+        <td><span class="badge priority-{{ t.priority }}">{{ t.priority }}</span></td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.submitted_by }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

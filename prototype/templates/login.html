@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<h1>Helpdesk Prototype &mdash; Log In</h1>
+<p>Demo users: <code>agent1</code> (first-level agent) or <code>idmgmt1</code> (identity management, privileged).</p>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post">
+    <label>Username</label>
+    <input type="text" name="username" placeholder="agent1" required>
+    <button type="submit">Log In</button>
+</form>
+{% endblock %}

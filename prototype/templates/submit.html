@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Submit Ticket{% endblock %}
+{% block content %}
+<h1>Submit a Ticket</h1>
+<form method="post">
+    <label>Describe the issue</label>
+    <textarea name="description" rows="3" placeholder="e.g. I'm locked out of my account after resetting my password" required></textarea>
+    <button type="submit">Submit &amp; Categorise</button>
+</form>
+
+{% if result %}
+<div class="result-box">
+    <strong>Ticket #{{ result.id }} categorised automatically:</strong><br>
+    Category: <strong>{{ result.category }}</strong><br>
+    Priority: <span class="badge priority-{{ result.priority }}">{{ result.priority }}</span><br>
+    {% if result.sensitive %}
+        <span class="restricted">This category is security-sensitive &mdash; full detail is restricted to the identity management role in the queue view.</span>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+id,expected_category,description
+1,Password / Account Access,I am locked out of my account and need a password reset
+2,Password / Account Access,"Forgot my login password, can someone help me get back in"
+3,Password / Account Access,My account got locked after too many failed login attempts
+4,Password / Account Access,"Need MFA reset, lost my authenticator device"
+5,Password / Account Access,"Can't log into my email, password isn't working"
+6,Password / Account Access,"Please reset my password, it expired yesterday"
+7,Password / Account Access,I'm locked out and need my account access restored
+8,Password / Account Access,Login keeps failing even though I'm sure the password is right
+9,Password / Account Access,"Account access issue, can't sign in this morning"
+10,Password / Account Access,"Need help with my mfa token, it's not generating codes"
+11,Hardware Issue,My laptop keyboard is not working
+12,Hardware Issue,The monitor on my desk won't turn on
+13,Hardware Issue,"Mouse is unresponsive, tried a different USB port already"
+14,Hardware Issue,Printer on the 3rd floor is jammed again
+15,Hardware Issue,My laptop screen has a crack and flickers
+16,Hardware Issue,"Need a replacement device, mine won't power on"
+17,Hardware Issue,Hardware fan is making a loud grinding noise
+18,Hardware Issue,Keyboard keys are sticking on my laptop
+19,Hardware Issue,My device won't charge even with a new cable
+20,Hardware Issue,The printer is out of order and showing an error light
+21,Software / Application Error,The application keeps crashing when I open it
+22,Software / Application Error,Getting an error message every time I save a file
+23,Software / Application Error,Software freeze when I try to export a report
+24,Software / Application Error,Need help installing the new accounting software
+25,Software / Application Error,The app crashed and I lost unsaved work
+26,Software / Application Error,Install of the CRM client keeps failing halfway through
+27,Software / Application Error,Getting a bug where the dashboard won't load correctly
+28,Software / Application Error,My spreadsheet program freezes on large files
+29,Software / Application Error,Application throws an error on startup every morning
+30,Software / Application Error,"Can someone help install this software update, it keeps failing"
+31,Network Connectivity,I cannot connect to the office wifi
+32,Network Connectivity,VPN keeps disconnecting every few minutes
+33,Network Connectivity,No internet connection in the east wing today
+34,Network Connectivity,Network connection drops constantly during video calls
+35,Network Connectivity,My laptop shows offline even though others are connected
+36,Network Connectivity,Wifi signal is very weak near my desk
+37,Network Connectivity,Can't connect to the VPN from home today
+38,Network Connectivity,Internet is completely down in the building
+39,Network Connectivity,Network keeps dropping connection to shared drives
+40,Network Connectivity,Having trouble connecting to the guest wifi network
+41,Access Request / Permissions,I need permission to the shared drive for the finance folder
+42,Access Request / Permissions,Requesting access to the marketing shared drive
+43,Access Request / Permissions,Can I get folder permission for the new project files
+44,Access Request / Permissions,Need a role grant to access the reporting dashboard
+45,Access Request / Permissions,Requesting access rights to the HR shared drive
+46,Access Request / Permissions,I need permission granted to view the budget folder
+47,Access Request / Permissions,Please grant me access to the new client shared drive
+48,Access Request / Permissions,My role doesn't have permission for the archive folder
+49,Access Request / Permissions,Requesting folder access for the onboarding materials
+50,Access Request / Permissions,Need elevated access to the shared drive for this project
