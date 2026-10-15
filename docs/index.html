@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helpdesk Triage Capstone · Saikat Sunil Ganguly</title>
+<meta name="description" content="MSIT capstone by Saikat Sunil Ganguly: a rule-based IT helpdesk ticket categorisation and triage prototype, with design, code, tests, evaluation and release history.">
+<style>
+  :root {
+    --bg: #faf8f4;
+    --surface: #ffffff;
+    --ink: #1c2430;
+    --muted: #505b6b;
+    --line: #e2ddd3;
+    --accent: #2c5f8a;
+    --accent-ink: #ffffff;
+    --amber: #8a5a10;
+    --amber-bg: #fbf1df;
+    --ok: #1f6b45;
+    --ok-bg: #e5f3eb;
+    --part: #7a5200;
+    --part-bg: #fbf1df;
+    --no: #8b2c2c;
+    --no-bg: #f8e6e6;
+    --code-bg: #f1eee8;
+    --radius: 10px;
+    --max: 1040px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161c; --surface: #1a2029; --ink: #e8ebf0; --muted: #a8b1bf; --line: #2d3542;
+      --accent: #7fb0dc; --accent-ink: #0d1520; --amber: #e3b45e; --amber-bg: #2c2414;
+      --ok: #7fd3a5; --ok-bg: #16291f; --part: #e3b45e; --part-bg: #2c2414;
+      --no: #f0a0a0; --no-bg: #301a1a; --code-bg: #222a35;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161c; --surface: #1a2029; --ink: #e8ebf0; --muted: #a8b1bf; --line: #2d3542;
+    --accent: #7fb0dc; --accent-ink: #0d1520; --amber: #e3b45e; --amber-bg: #2c2414;
+    --ok: #7fd3a5; --ok-bg: #16291f; --part: #e3b45e; --part-bg: #2c2414;
+    --no: #f0a0a0; --no-bg: #301a1a; --code-bg: #222a35;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .skip { position: absolute; left: -9999px; top: 0; background: var(--accent); color: var(--accent-ink); padding: 8px 14px; z-index: 10; }
+  .skip:focus { left: 16px; top: 16px; }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible, video:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
+  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; line-height: 1.2; font-weight: 600; }
+  h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: .3em 0 .35em; letter-spacing: -0.01em; }
+  h2 { font-size: clamp(1.45rem, 3vw, 1.9rem); margin: 0 0 .6em; }
+  h3 { font-size: 1.15rem; margin: 1.4em 0 .4em; }
+  p { margin: 0 0 1em; }
+  code { background: var(--code-bg); padding: .1em .35em; border-radius: 4px; font-size: .9em; }
+
+  header.hero { padding: 56px 0 36px; border-bottom: 1px solid var(--line); }
+  .eyebrow { color: var(--muted); font-size: .92rem; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+  .lede { font-size: 1.15rem; max-width: 46em; color: var(--ink); }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .btn { display: inline-block; padding: 10px 18px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: .95rem; border: 1.5px solid var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { color: var(--accent); background: transparent; }
+
+  nav.toc { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  nav.toc ul { list-style: none; margin: 0; padding: 10px 0; display: flex; gap: 6px 18px; flex-wrap: wrap; font-size: .92rem; }
+  nav.toc a { text-decoration: none; color: var(--muted); }
+  nav.toc a:hover { color: var(--accent); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 32px 0 8px; padding: 0; list-style: none; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .stat b { display: block; font-family: Georgia, serif; font-size: 1.9rem; line-height: 1.1; color: var(--accent); }
+  .stat span { display: block; font-size: .88rem; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+
+  section { padding: 48px 0 8px; scroll-margin-top: 56px; }
+  .two { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start; }
+  .two > * { min-width: 0; }
+  @media (min-width: 860px) { .two { grid-template-columns: 1.05fr 1fr; } }
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  figure img, figure video { display: block; width: 100%; height: auto; border-radius: 6px; background: #fff; }
+  figcaption { font-size: .88rem; color: var(--muted); margin-top: 10px; line-height: 1.45; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .note { background: var(--amber-bg); border-left: 4px solid var(--amber); padding: 12px 16px; border-radius: 6px; font-size: .95rem; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; min-width: 560px; }
+  caption { text-align: left; padding: 12px 14px 4px; font-weight: 600; color: var(--ink); }
+  th, td { text-align: left; padding: 9px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th { border-top: none; color: var(--muted); font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .03em; }
+  .tag { display: inline-block; font-size: .78rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .tag.ok { color: var(--ok); background: var(--ok-bg); }
+  .tag.part { color: var(--part); background: var(--part-bg); }
+  .tag.no { color: var(--no); background: var(--no-bg); }
+
+  ol.walk { padding-left: 1.3em; margin: 0; }
+  ol.walk li { margin-bottom: .5em; }
+  ul.clean { padding-left: 1.2em; margin: 0 0 1em; }
+  ul.clean li { margin-bottom: .35em; }
+  .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0; }
+  .links a { display: block; height: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; text-decoration: none; color: var(--ink); }
+  .links a:hover { border-color: var(--accent); }
+  .links strong { display: block; color: var(--accent); }
+  .links span { font-size: .88rem; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
+  .chips li { border: 1px solid var(--line); background: var(--surface); padding: 4px 12px; border-radius: 999px; font-size: .9rem; }
+
+  footer { margin-top: 56px; border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: .9rem; }
+  .theme-toggle { float: right; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 4px 12px; cursor: pointer; font: inherit; font-size: .85rem; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">MSIT Capstone Project · University of the People · 2026</p>
+    <h1>Making IT helpdesk triage clearer, consistent and auditable</h1>
+    <p class="lede">I designed a structured ticket categorisation and triage workflow for IT helpdesks, then built and tested a small working prototype of its core: rule-based categorisation, role-based access to security-sensitive tickets, and a full audit trail. Every claim on this page links to the code, test logs or measurements behind it.</p>
+    <p><strong>Saikat Sunil Ganguly</strong> · Supervisor: Dr. Stella Whyte</p>
+    <div class="actions">
+      <a class="btn primary" href="assets/capstone-report.pdf">Read the report (PDF)</a>
+      <a class="btn ghost" href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone">View the code on GitHub</a>
+      <a class="btn ghost" href="#demo">Watch the demo</a>
+    </div>
+    <ul class="stats" aria-label="Headline results">
+      <li class="stat"><b>98%</b><span>categorisation accuracy (49 of 50 independently written tickets)</span></li>
+      <li class="stat"><b>15.3&nbsp;ms</b><span>mean response time, single user, 60 timed requests</span></li>
+      <li class="stat"><b>55</b><span>automated tests: 52 pass, 3 documented limitations</span></li>
+      <li class="stat"><b>98%</b><span>statement coverage of the application code</span></li>
+      <li class="stat"><b>300/300</b><span>concurrent submissions stored, no records lost</span></li>
+      <li class="stat"><b>v1.2.0</b><span>latest of five tagged releases</span></li>
+    </ul>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Page sections">
+  <div class="wrap">
+    <ul>
+      <li><a href="#problem">Problem</a></li>
+      <li><a href="#design">Design</a></li>
+      <li><a href="#prototype">Prototype</a></li>
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#evaluation">Evaluation</a></li>
+      <li><a href="#testing">Testing</a></li>
+      <li><a href="#scope">Scope &amp; limits</a></li>
+      <li><a href="#releases">Releases</a></li>
+      <li><a href="#documents">Documents</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main" class="wrap">
+
+  <section id="problem" aria-labelledby="h-problem">
+    <h2 id="h-problem">The problem</h2>
+    <div class="two">
+      <div>
+        <p>Users describe symptoms, not causes. A ticket that says only <em>“my account is not working”</em> could be a routine lockout, an application fault or a compromised account, and different agents will route it differently. Inconsistent categorisation leads to reassignment, delay and unreliable reporting.</p>
+        <p><strong>Research question:</strong> how can a simplified ticket categorisation model and a structured triage workflow improve routing consistency and reduce resolution delays in IT helpdesk environments?</p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Why a rule-based approach</h3>
+        <p>Published studies found that simple, explainable classifiers are often as accurate as complex models on IT ticket text (Revina et al., 2020; Wahba et al., 2020). Rules need no training data, and every decision can be traced back to the keyword that produced it, which supports fairness and auditing.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="design" aria-labelledby="h-design">
+    <h2 id="h-design">The design</h2>
+    <div class="two">
+      <figure>
+        <img src="assets/system-architecture.png" width="2052" height="2426" loading="lazy"
+             alt="Architecture flow diagram. An end user submits a ticket through the Ticket Submission Interface, which passes it to the Categorisation Module. That module writes to a Category and Priority Data Store and passes the ticket to the Triage and Assessment Module, then to Assignment and Escalation, then Ticket Resolution and Status Update, and finally Reporting and Analytics. A Security and Governance Layer spanning all modules contains RBAC, audit logging, encryption, data minimisation and retention controls.">
+        <figcaption>Six-module architecture with a security and governance layer that applies to every stage. Source: <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/diagrams/system-architecture.mmd">Mermaid file</a>, version-controlled with the code.</figcaption>
+      </figure>
+      <div>
+        <p>The design is tool-agnostic: an organisation could apply it inside an existing service-desk platform. It defines five standard categories, an impact-and-urgency priority matrix, a separate escalation path for security-sensitive tickets, and reporting fields for reassignment, backlog and resolution time.</p>
+        <p>Security and ethics are built in from the start: least-privilege access, an audit trail, data minimisation, and a human-review fallback for tickets the rules can’t place, so the system never forces a guess. These follow ISO/IEC 27001 and GDPR principles.</p>
+        <p><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/requirements/functional-requirements.md">Functional requirements</a> · <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/requirements/non-functional-requirements.md">Non-functional requirements</a> · <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/workflow/triage-workflow.md">Triage workflow</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="prototype" aria-labelledby="h-prototype">
+    <h2 id="h-prototype">The prototype</h2>
+    <p>The project began as a process-design study. With my supervisor’s approval, I added a deliberately small working prototype to prove the core logic of the design, not to build a production helpdesk.</p>
+    <div class="two">
+      <div class="card">
+        <h3 style="margin-top:0">What it does</h3>
+        <ul class="clean">
+          <li><strong>Categorises tickets automatically</strong> into five categories by keyword matching, and sets priority and a security-sensitive flag: <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/categorization.py"><code>categorization.py</code></a></li>
+          <li><strong>Masks security-sensitive tickets</strong> from first-level agents. The check runs on the server, so restricted text never reaches an unprivileged browser: <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/app.py"><code>app.py</code></a></li>
+          <li><strong>Logs every action</strong> (login, logout, submission, queue view) with a timestamp: <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/models.py"><code>models.py</code></a></li>
+          <li><strong>Sends unmatched tickets to human review</strong> instead of forcing a category.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Run it locally</h3>
+        <p>Requires Python 3.12 or later.</p>
+<pre style="margin:0 0 1em;overflow-x:auto;background:var(--code-bg);padding:12px;border-radius:6px;font-size:.88rem"><code style="background:none;padding:0">git clone https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone
+cd msit5910-helpdesk-capstone/prototype
+pip install -r requirements.txt
+python app.py          # then open http://127.0.0.1:5000
+python -m pytest       # runs all 55 tests</code></pre>
+        <p style="margin:0">Demo logins: <code>agent1</code> (first-level agent) and <code>idmgmt1</code> (identity management). The login is username-only by design; see <a href="#scope">limitations</a>.</p>
+      </div>
+    </div>
+    <h3>Built with</h3>
+    <ul class="chips" aria-label="Technologies">
+      <li>Python</li><li>Flask</li><li>SQLite</li><li>pytest</li><li>pytest-cov</li><li>Git &amp; GitHub</li><li>Semantic Versioning</li><li>Mermaid</li><li>GitHub Pages</li>
+    </ul>
+  </section>
+
+  <section id="demo" aria-labelledby="h-demo">
+    <h2 id="h-demo">Demo video</h2>
+    <div class="two">
+      <figure>
+        <video controls preload="metadata" poster="assets/demo-poster.jpg" width="1212" height="758" aria-describedby="demo-walk">
+          <source src="assets/demo.mp4" type="video/mp4">
+          Your browser cannot play this video. <a href="assets/demo.mp4">Download the demo (MP4, 7 minutes)</a>.
+        </video>
+        <figcaption>System demonstration, about 7 minutes, recorded with the first working version of the prototype. Later releases added the bug fixes and tests described below. <a href="assets/demo.mp4">Download MP4</a>.</figcaption>
+      </figure>
+      <div class="card" id="demo-walk">
+        <h3 style="margin-top:0">Written walkthrough</h3>
+        <ol class="walk">
+          <li>Project purpose, target users and the six-module design.</li>
+          <li>Development environment: Python, Flask and SQLite, installing dependencies and starting the server.</li>
+          <li>Logged in as <code>agent1</code>, a ticket reading “I’m locked out of my account after resetting my password” is categorised as <strong>Password / Account Access</strong>, <strong>High</strong> priority, and flagged security-sensitive.</li>
+          <li>A hardware ticket is categorised differently, showing that the result depends on the ticket text.</li>
+          <li>In the queue, the agent sees the sensitive ticket’s description masked; logged in as <code>idmgmt1</code>, the full description is visible.</li>
+          <li>Tie-back: how each part of the demo maps to the architecture and requirements.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="evaluation" aria-labelledby="h-evaluation">
+    <h2 id="h-evaluation">Evaluation</h2>
+    <figure>
+      <img src="assets/evaluation-chart.png" width="1634" height="611" loading="lazy"
+           alt="Two charts. Left: categorisation accuracy by category on 50 test tickets. Password / Account Access, Hardware Issue, Software / Application Error and Access Request / Permissions each reach 100 percent; Network Connectivity reaches 90 percent; overall 98.0 percent. Right: histogram of 60 request latencies ranging from about 11 to 24 milliseconds, with a mean of 15.29 milliseconds.">
+      <figcaption>Measured on Windows 11 with Python 3.14.2. Raw data: <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/evaluation/results/accuracy_results.json">accuracy</a>, <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/evaluation/results/latency_results.json">latency</a>, <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/evaluation/test_tickets.csv">the 50 test tickets</a>.</figcaption>
+    </figure>
+    <div class="table-scroll" style="margin-top:20px">
+      <table>
+        <caption>Results against the evaluation framework</caption>
+        <thead><tr><th scope="col">Measure</th><th scope="col">Method</th><th scope="col">Result</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Categorisation accuracy</th><td>50 hand-written tickets, 10 per category, written separately from the keyword lists</td><td>98.0% (49/50)</td></tr>
+          <tr><th scope="row">Response time</th><td>60 real HTTP submissions, full stack, one user</td><td>Mean 15.29 ms, median 14.85 ms</td></tr>
+          <tr><th scope="row">Stability</th><td>10 simultaneous users × 30 submissions</td><td>300/300 succeeded, 300 distinct tickets and 300 audit entries; mean 189.6 ms, slowest 4.7 s</td></tr>
+          <tr><th scope="row">Usability</th><td>Walkthrough against six of Nielsen’s heuristics</td><td>Five fully met; error prevention partly met</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:16px">The single misclassification, “My laptop shows offline even though others are connected,” went to Hardware Issue instead of Network Connectivity. Each category matched one keyword, and ties go to the category seeded first. Because the cause is known and reproducible, the fix is clear: send ties to human review.</p>
+  </section>
+
+  <section id="testing" aria-labelledby="h-testing">
+    <h2 id="h-testing">Testing</h2>
+    <div class="table-scroll">
+      <table>
+        <caption>55 automated tests across four levels</caption>
+        <thead><tr><th scope="col">Level</th><th scope="col">Tests</th><th scope="col">First run</th><th scope="col">After fixes</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Unit (white-box)</th><td>19</td><td>19 passed</td><td>19 passed</td></tr>
+          <tr><th scope="row">Integration</th><td>9</td><td>9 passed</td><td>9 passed</td></tr>
+          <tr><th scope="row">System</th><td>17</td><td>14 passed, 3 failed</td><td>17 passed</td></tr>
+          <tr><th scope="row">Acceptance</th><td>7</td><td>7 passed</td><td>7 passed</td></tr>
+          <tr><th scope="row">Known limitations</th><td>3</td><td>3 expected failures</td><td>3 expected failures</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Defects found by testing, then fixed</h3>
+    <ul class="clean">
+      <li><strong>Ambiguous keyword (v0.2.0):</strong> the bare word “reset” sent “reset my monitor settings” to the security-sensitive password category. Fixed with specific phrases and locked in with a regression test.</li>
+      <li><strong>Empty tickets (v1.2.0):</strong> blank or whitespace-only tickets were stored. The server now rejects them with HTTP 400 and a clear message.</li>
+      <li><strong>Queue order (v1.2.0):</strong> tickets created in the same second appeared in the wrong order. Ticket id is now a tie-breaker.</li>
+    </ul>
+    <p>Test logs from before and after the fixes: <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/evaluation/results/unit7_before_fix.xml">before</a> · <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/prototype/evaluation/results/unit7_after_fix.xml">after</a> · <a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/tree/main/prototype/tests">test code</a></p>
+  </section>
+
+  <section id="scope" aria-labelledby="h-scope">
+    <h2 id="h-scope">Scope and what isn’t built yet</h2>
+    <p>The prototype implements three of the six designed modules: ticket submission, categorisation, and the security and governance layer. Of the seven functional requirements, <strong>six are partly implemented and one, reporting, is not built</strong>.</p>
+    <div class="table-scroll">
+      <table>
+        <caption>Functional requirements and implementation status</caption>
+        <thead><tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Status</th><th scope="col">What exists today</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">FR1</th><td>Guided categorisation into at least five categories</td><td><span class="tag part">Partial</span></td><td>Automatic classification into five categories; guided prompts not built</td></tr>
+          <tr><th scope="row">FR2</th><td>Structured ticket record</td><td><span class="tag part">Partial</span></td><td>Impact and urgency combined into one priority value</td></tr>
+          <tr><th scope="row">FR3</th><td>Standard triage routing</td><td><span class="tag part">Partial</span></td><td>Routes by category and priority only</td></tr>
+          <tr><th scope="row">FR4</th><td>Flag security-sensitive tickets for escalation</td><td><span class="tag part">Partial</span></td><td>Flagged and masked; no escalation notification</td></tr>
+          <tr><th scope="row">FR5</th><td>Record ticket lifecycle data</td><td><span class="tag part">Partial</span></td><td>No agent assignment or resolution outcome yet</td></tr>
+          <tr><th scope="row">FR6</th><td>Reporting and analytics</td><td><span class="tag no">Not built</span></td><td>Module remains at design stage</td></tr>
+          <tr><th scope="row">FR7</th><td>Role-based access and audit trail</td><td><span class="tag part">Partial</span></td><td>RBAC and full audit log; assignment changes not audited</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Known limitations (tracked as expected-failure tests)</h3>
+    <ul class="clean">
+      <li><strong>KL-01:</strong> the demo login has no password. Next step: hashed passwords and MFA.</li>
+      <li><strong>KL-02:</strong> keyword ties resolve by category order. Next step: route ties to human review.</li>
+      <li><strong>KL-03:</strong> no CSRF protection on forms. Next step: add tokens.</li>
+      <li><strong>Load:</strong> the Flask development server with SQLite slows under ten simultaneous users. The deployment plan moves to Docker, gunicorn and a server database.</li>
+    </ul>
+  </section>
+
+  <section id="releases" aria-labelledby="h-releases">
+    <h2 id="h-releases">Release history</h2>
+    <p>Work happens on a <code>development</code> branch and is merged into <code>main</code> at each milestone, which is then tagged following Semantic Versioning.</p>
+    <div class="table-scroll">
+      <table>
+        <caption>Tagged releases</caption>
+        <thead><tr><th scope="col">Tag</th><th scope="col">Milestone</th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/releases/tag/v0.1.0">v0.1.0</a></th><td>First working prototype: categorisation and role-based access</td></tr>
+          <tr><th scope="row"><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/releases/tag/v0.2.0">v0.2.0</a></th><td>Reset-keyword fix and 19-test unit suite</td></tr>
+          <tr><th scope="row"><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/releases/tag/v1.0.0">v1.0.0</a></th><td>Release of the tested prototype</td></tr>
+          <tr><th scope="row"><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/releases/tag/v1.1.0">v1.1.0</a></th><td>Page templates, 50-ticket test set, evaluation scripts and results</td></tr>
+          <tr><th scope="row"><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/releases/tag/v1.2.0">v1.2.0</a></th><td>Integration, system and acceptance tests, two bug fixes, stability test</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="documents" aria-labelledby="h-documents">
+    <h2 id="h-documents">Documents and source</h2>
+    <ul class="links">
+      <li><a href="assets/capstone-report.pdf"><strong>Capstone project report</strong><span>PDF: literature review, design, results, testing, deployment and maintenance plans</span></a></li>
+      <li><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone"><strong>GitHub repository</strong><span>Code, tests, evaluation data and full commit history</span></a></li>
+      <li><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/releases"><strong>Releases</strong><span>Five tagged milestones, v0.1.0 to v1.2.0</span></a></li>
+      <li><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/blob/main/docs/literature-review/README.md"><strong>Literature review notes</strong><span>Sources behind the rule-based design</span></a></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <button class="theme-toggle" type="button" id="theme-toggle">Switch theme</button>
+    <p style="margin:0">© 2026 Saikat Sunil Ganguly · MSIT 5910 Capstone, University of the People<br>
+    <a href="https://github.com/saikatsunilganguly-cpu">GitHub profile</a>
+    <!-- Add your LinkedIn link here, for example:  · <a href="https://www.linkedin.com/in/your-profile">LinkedIn</a> --></p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('theme-toggle');
+    try { var saved = localStorage.getItem('theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark'
+               : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var next = dark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>
