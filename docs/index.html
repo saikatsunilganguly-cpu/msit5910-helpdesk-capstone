@@ -110,6 +110,8 @@
   .chips li { border: 1px solid var(--line); background: var(--surface); padding: 4px 12px; border-radius: 999px; font-size: .9rem; }
 
   footer { margin-top: 56px; border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: .9rem; }
+  .ci-status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .9rem; color: var(--muted); margin: 14px 0 0; }
+  .ci-status img { display: block; }
   .theme-toggle { float: right; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 4px 12px; cursor: pointer; font: inherit; font-size: .85rem; }
 </style>
 </head>
@@ -135,6 +137,7 @@
       <li class="stat"><b>300/300</b><span>concurrent submissions stored, no records lost</span></li>
       <li class="stat"><b>v1.2.0</b><span>latest of five tagged releases</span></li>
     </ul>
+    <p class="ci-status"><a href="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/actions/workflows/tests.yml"><img src="https://github.com/saikatsunilganguly-cpu/msit5910-helpdesk-capstone/actions/workflows/tests.yml/badge.svg" alt="Status of the latest automated test run on GitHub Actions" height="20"></a> All 55 tests run automatically on every push. The badge shows the result of the latest run.</p>
   </div>
 </header>
 
@@ -306,7 +309,7 @@ python -m pytest       # runs all 55 tests</code></pre>
     </div>
     <h3>Known limitations (tracked as expected-failure tests)</h3>
     <ul class="clean">
-      <li><strong>KL-01:</strong> the demo login has no password. Next step: hashed passwords and MFA.</li>
+      <li><strong>KL-01:</strong> the demo login has no password. Every page shows a “demo mode” banner so the prototype is never mistaken for the intended design. Next step: hashed passwords and multi-factor authentication, targeting NIST Authentication Assurance Level 2.</li>
       <li><strong>KL-02:</strong> keyword ties resolve by category order. Next step: route ties to human review.</li>
       <li><strong>KL-03:</strong> no CSRF protection on forms. Next step: add tokens.</li>
       <li><strong>Load:</strong> the Flask development server with SQLite slows under ten simultaneous users. The deployment plan moves to Docker, gunicorn and a server database.</li>

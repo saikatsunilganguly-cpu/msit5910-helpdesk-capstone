@@ -20,9 +20,14 @@
         .restricted { color: #999; font-style: italic; }
         .error { color: #a11; }
         .role-tag { color: #666; font-size: 0.85rem; }
+        .demo-banner { background: #fff4d6; border: 1px solid #e8c873; color: #5c3d00; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <div class="demo-banner" role="note">
+        <strong>Demo mode:</strong> synthetic accounts and test data only. Login checks a username without a password,
+        by design for this proof of concept; the production design would require multi-factor authentication.
+    </div>
     {% if session['username'] %}
     <nav>
         Logged in as <strong>{{ session['username'] }}</strong> <span class="role-tag">({{ session['role'] }})</span>
