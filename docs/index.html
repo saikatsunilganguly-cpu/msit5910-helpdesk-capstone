@@ -112,6 +112,10 @@
   footer { margin-top: 56px; border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: .9rem; }
   .ci-status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .9rem; color: var(--muted); margin: 14px 0 0; }
   .ci-status img { display: block; }
+  .cm td { text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .cm td.cm-hit { color: var(--ok); background: var(--ok-bg); }
+  .cm td.cm-miss { color: var(--no); background: var(--no-bg); outline: 2px solid var(--no); outline-offset: -2px; }
+  .cm td.cm-zero { color: var(--muted); font-weight: 400; }
   .theme-toggle { float: right; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 4px 12px; cursor: pointer; font: inherit; font-size: .85rem; }
 </style>
 </head>
@@ -273,6 +277,19 @@ python -m pytest       # runs all 55 tests</code></pre>
           <tr><th scope="row">Response time</th><td>60 real HTTP submissions, full stack, one user</td><td>Mean 15.29 ms, median 14.85 ms</td></tr>
           <tr><th scope="row">Stability</th><td>10 simultaneous users × 30 submissions</td><td>300/300 succeeded, 300 distinct tickets and 300 audit entries; mean 189.6 ms, slowest 4.7 s</td></tr>
           <tr><th scope="row">Usability</th><td>Walkthrough against six of Nielsen’s heuristics</td><td>Five fully met; error prevention partly met</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-scroll" style="margin-top:20px">
+      <table class="cm">
+        <caption>Confusion matrix for the 50 test tickets: rows show the correct category, columns show the category the prototype chose. The diagonal holds correct results; the one error is highlighted.</caption>
+        <thead><tr><th scope="col">Correct category ↓ / Predicted →</th><th scope="col">Password / Account</th><th scope="col">Hardware</th><th scope="col">Software / App</th><th scope="col">Network</th><th scope="col">Access Request</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Password / Account Access</th><td class="cm-hit">10</td><td class="cm-zero">0</td><td class="cm-zero">0</td><td class="cm-zero">0</td><td class="cm-zero">0</td></tr>
+          <tr><th scope="row">Hardware Issue</th><td class="cm-zero">0</td><td class="cm-hit">10</td><td class="cm-zero">0</td><td class="cm-zero">0</td><td class="cm-zero">0</td></tr>
+          <tr><th scope="row">Software / Application Error</th><td class="cm-zero">0</td><td class="cm-zero">0</td><td class="cm-hit">10</td><td class="cm-zero">0</td><td class="cm-zero">0</td></tr>
+          <tr><th scope="row">Network Connectivity</th><td class="cm-zero">0</td><td class="cm-miss">1</td><td class="cm-zero">0</td><td class="cm-hit">9</td><td class="cm-zero">0</td></tr>
+          <tr><th scope="row">Access Request / Permissions</th><td class="cm-zero">0</td><td class="cm-zero">0</td><td class="cm-zero">0</td><td class="cm-zero">0</td><td class="cm-hit">10</td></tr>
         </tbody>
       </table>
     </div>
